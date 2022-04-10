@@ -1,0 +1,53 @@
+﻿{
+  "$schema": "https://json.schemastore.org/launchsettings.json",
+  "iisSettings": {
+    "windowsAuthentication": false,
+    "anonymousAuthentication": true,
+    "iisExpress": {
+      "applicationUrl": "http://localhost:51065",
+      "sslPort": 44376
+    }
+  },
+  "profiles": {
+    "MarvelousConfigs": {
+      "commandName": "Project",
+      "dotnetRunMessages": true,
+      "launchBrowser": true,
+      "launchUrl": "swagger",
+      "applicationUrl": "https://localhost:7232;http://localhost:5232",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    },
+    "IIS Express": {
+      "commandName": "IISExpress",
+      "launchBrowser": true,
+      "launchUrl": "swagger",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    },
+    "Config": {
+      "commandName": "Project",
+      "dotnetRunMessages": true,
+      "launchBrowser": true,
+      "launchUrl": "swagger",
+      "environmentVariables": {
+        "LOG_DIRECTORY": "C:/Users/alian/source/repos/MarvelousConfigs",
+        "CONFIG_CONNECTION_STRING": "Data Source=80.78.240.16;Initial Catalog = ConfigDB; User ID = student;Password=qwe!23;TrustServerCertificate=True;",
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    },
+    "MyLocal": {
+      "commandName": "Project",
+      "dotnetRunMessages": true,
+      "launchBrowser": true,
+      "launchUrl": "swagger",
+      "environmentVariables": {
+        "LOG_DIRECTORY": "C:/Users/alian/source/repos/MarvelousConfigs",
+        "CONFIG_CONNECTION_STRING": "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=Config;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False",
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}

@@ -1,4 +1,5 @@
 ﻿using MarvelousConfigs.BLL.Exeptions;
+using MarvelousConfigs.BLL.Helper.Exceptions;
 using MarvelousConfigs.DAL.Entities;
 using MarvelousConfigs.DAL.Repositories;
 using Microsoft.Extensions.Caching.Memory;
@@ -55,25 +56,35 @@ namespace MarvelousConfigs.BLL.Cache
             }
             catch (Exception ex)
             {
-                _logger.LogCritical($"Error loading objects into the cache. {ex}");
+                throw new CacheLoadingException($"Cache loading error during service initialization. {ex}");
             }
         }
 
         public async Task RefreshConfigByServiceId(int id)
         {
-            var service = await _cache.GetOrCreateAsync(id, (ICacheEntry _)
-                => _microservice.GetMicroserviceById(id));
-
-            if (service == null)
-                throw new EntityNotFoundException($"Service with id{ id } was not found");
-
-            var configs = await _config.GetConfigsByService(service.ServiceName);
-            List<Config> cfgs = new List<Config>();
-            foreach (var c in configs)
+            try
             {
-                cfgs.Add(c);
+                var service = await _cache.GetOrCreateAsync(id, (ICacheEntry _)
+                    => _microservice.GetMicroserviceById(id));
+
+                if (service == null)
+                    throw new EntityNotFoundException($"Service with id{ id } was not found");
+
+                var configs = await _config.GetConfigsByService(service.ServiceName);
+                _logger.LogInformation($"Update configurations into the cache for {(Marvelous.Contracts.Enums.Microservice)id}");
+                List<Config> cfgs = new List<Config>();
+                foreach (var c in configs)
+                {
+                    cfgs.Add(c);
+                }
+                _cache.Set(service.ServiceName, cfgs);
+                _logger.LogInformation("New configurations were successfully loaded into the cache");
             }
-            _cache.Set(service.ServiceName, cfgs);
+            catch (Exception ex)
+            {
+                throw new CacheLoadingException($"Сache loading error when trying to update cached configurations for service " +
+                    $"{(Marvelous.Contracts.Enums.Microservice)id}. {ex}");
+            }
         }
     }
 }

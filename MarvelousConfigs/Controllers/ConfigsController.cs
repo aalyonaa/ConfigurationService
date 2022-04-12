@@ -38,6 +38,7 @@ namespace MarvelousConfigs.API.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [SwaggerOperation("Get all configs")]
         public async Task<ActionResult<List<ConfigOutputModel>>> GetAllConfigs()
         {
@@ -53,6 +54,7 @@ namespace MarvelousConfigs.API.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [SwaggerOperation("Update config by id")]
         public async Task<ActionResult> UpdateConfigById(int id, [FromBody] ConfigInputModel model)
         {
@@ -70,6 +72,7 @@ namespace MarvelousConfigs.API.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [SwaggerOperation("Get configs by service id")]
         public async Task<ActionResult<List<ConfigOutputModel>>> GetConfigsByServiceId(int id)
         {

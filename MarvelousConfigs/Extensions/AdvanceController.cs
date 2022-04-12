@@ -21,11 +21,11 @@ namespace MarvelousConfigs.API.Extensions
             _logger.LogInformation($"Query for validation of token to {Microservice.MarvelousAuth}");
             var token = HttpContext.Request.Headers.Authorization.FirstOrDefault();
             if (token is null)
-                throw new ForbiddenException($"User not authenticated");
+                throw new UnauthorizedException($"Request attempt from unauthorized user");
             var lead = await _auth.SendRequestToValidateToken(token);
             if (!roles.Select(r => r.ToString()).Contains(lead.Data!.Role))
             {
-                throw new ForbiddenException($"User with role:{lead.Data!.Role} don't have acces to this method");
+                throw new ForbiddenException($"Request attempt from user with role:{lead.Data!.Role}. User doesn't have access");
             }
         }
     }

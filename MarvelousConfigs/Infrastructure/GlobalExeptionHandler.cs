@@ -22,6 +22,14 @@ namespace MarvelousConfigs.API.Infrastructure
             {
                 await _next(context);
             }
+            catch (CacheLoadingException ex)
+            {
+                await HandleExceptionAsync(context, HttpStatusCode.BadGateway, ex.Message);
+            }
+            catch (UnauthorizedException ex)
+            {
+                await HandleExceptionAsync(context, HttpStatusCode.BadGateway, ex.Message);
+            }
             catch (ForbiddenException ex)
             {
                 await HandleExceptionAsync(context, HttpStatusCode.Forbidden, ex.Message);

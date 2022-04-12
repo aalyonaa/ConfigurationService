@@ -23,19 +23,6 @@ namespace MarvelousConfigs.BLL.Services
             _logger = logger;
         }
 
-        public async Task<int> AddMicroservice(MicroserviceModel microservice)
-        {
-            _logger.LogInformation("Adding a new microservice");
-            int id = await _rep.AddMicroservice(_map.Map<Microservice>(microservice));
-            _logger.LogInformation($"Microservice { id } has been added");
-            if (id > 0)
-            {
-                _cache.Set((Marvelous.Contracts.Enums.Microservice)id, microservice);
-                _logger.LogInformation($"Microservice { id } caching");
-            }
-            return id;
-        }
-
         public async Task UpdateMicroservice(int id, MicroserviceModel microservice)
         {
             Microservice service = await _cache.GetOrCreateAsync(id, (ICacheEntry _)
@@ -43,44 +30,12 @@ namespace MarvelousConfigs.BLL.Services
 
             if (service == null)
             {
-                throw new EntityNotFoundException("");
+                throw new EntityNotFoundException($"Service with id{ id } was not found");
             }
             _logger.LogInformation($"Changing microservice { id }");
             await _rep.UpdateMicroserviceById(id, _map.Map<Microservice>(microservice));
             _logger.LogInformation($"Microservice { id } has been updated");
             _cache.Set((Marvelous.Contracts.Enums.Microservice)id, _map.Map<MicroserviceModel>(await _rep.GetMicroserviceById(id)));
-            _logger.LogInformation($"Microservice { id } caching");
-        }
-
-        public async Task DeleteMicroservice(int id)
-        {
-            Microservice service = await _cache.GetOrCreateAsync(id, (ICacheEntry _)
-                => _rep.GetMicroserviceById(id));
-
-            if (service == null)
-            {
-                throw new EntityNotFoundException("");
-            }
-            _logger.LogInformation($"Delete microservice { id }");
-            await _rep.DeleteOrRestoreMicroserviceById(id, true);
-            _logger.LogInformation($"Microservice { id } has been deleted");
-            _cache.Remove(id);
-            _logger.LogInformation($"Microservice { id } delete from cach");
-        }
-
-        public async Task RestoreMicroservice(int id)
-        {
-            Microservice service = await _cache.GetOrCreateAsync(id, (ICacheEntry _)
-                 => _rep.GetMicroserviceById(id));
-
-            if (service == null)
-            {
-                throw new EntityNotFoundException("");
-            }
-            _logger.LogInformation($"Restore microservice { id }");
-            await _rep.DeleteOrRestoreMicroserviceById(id, false);
-            _logger.LogInformation($"Microservice { id } has been restore");
-            _cache.Set((Marvelous.Contracts.Enums.Microservice)id, service);
             _logger.LogInformation($"Microservice { id } caching");
         }
 
@@ -100,7 +55,7 @@ namespace MarvelousConfigs.BLL.Services
 
             if (service == null)
             {
-                throw new EntityNotFoundException("");
+                throw new EntityNotFoundException($"Service with id{ id } was not found");
             }
             _logger.LogInformation($"Microservice { id } has been received");
             return _map.Map<MicroserviceModel>(service);
@@ -114,7 +69,7 @@ namespace MarvelousConfigs.BLL.Services
 
             if (service == null)
             {
-                throw new EntityNotFoundException("");
+                throw new EntityNotFoundException($"Service with id{ id } was not found");
             }
 
             var serviceWithConfigs = await _rep.GetMicroserviceWithConfigsById(id);

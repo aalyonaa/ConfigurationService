@@ -37,36 +37,15 @@ namespace MarvelousConfigs.DAL.Repositories
                 (Queries.GetAllMicroservices, commandType: CommandType.StoredProcedure)).ToList();
         }
 
-        public async Task<int> AddMicroservice(Microservice microservice)
-        {
-            _logger.LogInformation($"Request to add a new microservice to DB");
-
-            using IDbConnection connection = ProvideConnection();
-
-            return await connection.QuerySingleAsync<int>
-                (Queries.AddMicroservice, new { ServiceName = microservice.ServiceName, Url = microservice.Url, Address = microservice.Address },
-                commandType: CommandType.StoredProcedure);
-        }
-
         public async Task UpdateMicroserviceById(int id, Microservice microservice)
         {
             _logger.LogInformation($"Request to update microservice by id{id} to DB");
 
             using IDbConnection connection = ProvideConnection();
 
-            var microservices = await connection.QueryAsync
-                (Queries.UpdateMicroserviceById, new { Id = id, ServiceName = microservice.ServiceName, Url = microservice.Url, Address = microservice.Address },
-                commandType: CommandType.StoredProcedure);
-        }
-
-        public async Task DeleteOrRestoreMicroserviceById(int id, bool isDeleted)
-        {
-            _logger.LogInformation($"Request to update microservice by id{id} to DB");
-
-            using IDbConnection connection = ProvideConnection();
-
             await connection.QueryAsync
-                (Queries.DeleteOrRestoreMicroserviceById, new { id, isDeleted }, commandType: CommandType.StoredProcedure);
+                (Queries.UpdateMicroserviceById, new { Id = id, Url = microservice.Url, Address = microservice.Address },
+                commandType: CommandType.StoredProcedure);
         }
 
         public async Task<MicroserviceWithConfigs> GetMicroserviceWithConfigsById(int id)

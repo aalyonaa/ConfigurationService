@@ -1,4 +1,5 @@
 ﻿using MarvelousConfigs.BLL.Exeptions;
+using MarvelousConfigs.BLL.Helper.Exceptions;
 using System.Net;
 using System.Text.Json;
 
@@ -20,6 +21,10 @@ namespace MarvelousConfigs.API.Infrastructure
             try
             {
                 await _next(context);
+            }
+            catch (ForbiddenException ex)
+            {
+                await HandleExceptionAsync(context, HttpStatusCode.Forbidden, ex.Message);
             }
             catch (EntityNotFoundException ex)
             {

@@ -1,6 +1,8 @@
 ﻿using Marvelous.Contracts.Autentificator;
 using Marvelous.Contracts.Endpoints;
 using Marvelous.Contracts.Enums;
+using Marvelous.Contracts.RequestModels;
+using Marvelous.Contracts.ResponseModels;
 using Microsoft.Extensions.Logging;
 using RestSharp;
 
@@ -14,6 +16,29 @@ namespace MarvelousConfigs.BLL.AuthRequestClient
         public AuthRequestClient(ILogger<AuthRequestClient> logger)
         {
             _logger = logger;
+        }
+
+        public async Task<RestResponse> GetToken(AuthRequestModel auth)
+        {
+            var client = new RestClient(_url);
+            client.AddDefaultHeader(nameof(Microservice), Microservice.MarvelousConfigs.ToString());
+            var request = new RestRequest($"{AuthEndpoints.ApiAuth}{AuthEndpoints.Login}", Method.Post);
+            request.AddBody(auth);
+            var response = await client.ExecuteAsync(request);
+            CheckTransactionError(response);
+            _logger.LogWarning(response.Content);
+            return response;
+        }
+
+        public async Task<RestResponse<IdentityResponseModel>> SendRequestToValidateToken(string jwtToken)
+        {
+            var request = new RestRequest(AuthEndpoints.ApiAuth + AuthEndpoints.ValidationFront);
+            var client = new RestClient(_url);
+            client.Authenticator = new MarvelousAuthenticator(jwtToken);
+            client.AddDefaultHeader(nameof(Microservice), Microservice.MarvelousConfigs.ToString());
+            var response = await client.ExecuteAsync<IdentityResponseModel>(request);
+            CheckTransactionError(response);
+            return response;
         }
 
         public async Task<bool> GetRestResponse(string token)
@@ -46,7 +71,6 @@ namespace MarvelousConfigs.BLL.AuthRequestClient
             var response = await client.ExecuteAsync(request);
             return CheckTransactionError(response);
         }
-
 
         private bool CheckTransactionError(RestResponse response)
         {

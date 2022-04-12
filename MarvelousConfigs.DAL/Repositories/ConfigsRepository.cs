@@ -49,29 +49,12 @@ namespace MarvelousConfigs.DAL.Repositories
 
         public async Task<List<Config>> GetConfigsByService(string name)
         {
-            _logger.LogInformation($"Request to get configs by microservice address {name} to DB");
+            _logger.LogInformation($"Request to get configs by microservice {name} to DB");
 
             using IDbConnection connection = ProvideConnection();
 
             return (await connection.QueryAsync<Config>
-                (Queries.GetConfigsByServiceAddress, new { Address = name }, commandType: CommandType.StoredProcedure)).ToList();
-        }
-
-        public async Task<int> AddConfig(Config config)
-        {
-            _logger.LogInformation("Request to add a new configuration to DB");
-
-            using IDbConnection connection = ProvideConnection();
-
-            return await connection.QuerySingleAsync<int>
-                (Queries.AddConfig, new
-                {
-                    Key = config.Key,
-                    Value = config.Value,
-                    ServiceId = config.ServiceId,
-                    Description = config.Description
-                },
-                commandType: CommandType.StoredProcedure);
+                (Queries.GetConfigsByServiceName, new { Name = name }, commandType: CommandType.StoredProcedure)).ToList();
         }
 
         public async Task UpdateConfigById(int id, Config config)
@@ -85,22 +68,10 @@ namespace MarvelousConfigs.DAL.Repositories
                 new
                 {
                     Id = id,
-                    Key = config.Key,
                     Value = config.Value,
-                    ServiceId = config.ServiceId,
                     Description = config.Description
                 },
                 commandType: CommandType.StoredProcedure);
-        }
-
-        public async Task DeleteOrRestoreConfigById(int id, bool isDeleted)
-        {
-            _logger.LogInformation($"Request to update config by id{id} to DB");
-
-            using IDbConnection connection = ProvideConnection();
-
-            await connection.QueryAsync
-                (Queries.DeleteOrRestoreConfigById, new { Id = id, IsDeleted = isDeleted }, commandType: CommandType.StoredProcedure);
         }
     }
 }

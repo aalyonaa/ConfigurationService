@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using MarvelousConfigs.BLL.AuthRequestClient;
+using MarvelousConfigs.BLL.Cache;
 using MarvelousConfigs.BLL.Exeptions;
+using MarvelousConfigs.BLL.Helper.Exceptions;
 using MarvelousConfigs.BLL.Models;
 using MarvelousConfigs.DAL.Entities;
 using MarvelousConfigs.DAL.Repositories;
@@ -16,28 +18,18 @@ namespace MarvelousConfigs.BLL.Services
         private readonly IMemoryCache _cache;
         private readonly ILogger<ConfigsService> _logger;
         private readonly IAuthRequestClient _auth;
+        private readonly IMemoryCacheExtentions _memory;
 
-        public ConfigsService(IConfigsRepository repository, IMapper mapper, IMemoryCache cache, ILogger<ConfigsService> logger, IAuthRequestClient auth)
+        public ConfigsService(IConfigsRepository repository,
+            IMapper mapper, IMemoryCache cache, IMemoryCacheExtentions memory,
+            ILogger<ConfigsService> logger, IAuthRequestClient auth)
         {
             _rep = repository;
             _map = mapper;
             _cache = cache;
             _logger = logger;
             _auth = auth;
-        }
-
-        public async Task<int> AddConfig(ConfigModel config)
-        {
-            _logger.LogInformation("Adding a new configuration");
-            int id = await _rep.AddConfig(_map.Map<Config>(config));
-            _logger.LogInformation($"Configuration { id } has been added");
-
-            if (id > 0)
-            {
-                _cache.Set(id, config);
-                _logger.LogInformation($"Configuration { id } caching");
-            }
-            return id;
+            _memory = memory;
         }
 
         public async Task UpdateConfigById(int id, ConfigModel config)
@@ -53,39 +45,7 @@ namespace MarvelousConfigs.BLL.Services
             await _rep.UpdateConfigById(id, _map.Map<Config>(config));
             _logger.LogInformation($"Configuration { id } has been updated");
             _cache.Set(id, _map.Map<ConfigModel>(((_rep.GetConfigById(id).Result))));
-            _logger.LogInformation($"Configuration { id } caching");
-        }
-
-        public async Task DeleteConfigById(int id)
-        {
-
-            Config conf = await _cache.GetOrCreateAsync(id, (ICacheEntry _)
-                => _rep.GetConfigById(id));
-
-            if (conf == null)
-            {
-                throw new EntityNotFoundException($"Configuration { id } not found");
-            }
-            _logger.LogInformation($"Delete configuration { id }");
-            await _rep.DeleteOrRestoreConfigById(id, true);
-            _logger.LogInformation($"Configuration { id } has been deleted");
-            _cache.Remove(id);
-            _logger.LogInformation($"Configuration { id } delete from cach");
-        }
-
-        public async Task RestoreConfigById(int id)
-        {
-            Config conf = await _cache.GetOrCreateAsync(id, (ICacheEntry _)
-                => _rep.GetConfigById(id));
-
-            if (conf == null)
-            {
-                throw new EntityNotFoundException($"Configuration { id } not found");
-            }
-            _logger.LogInformation($"Restore configuration { id }");
-            await _rep.DeleteOrRestoreConfigById(id, false);
-            _logger.LogInformation($"Configuration { id } has been restored");
-            _cache.Set(id, conf);
+            await _memory.RefreshConfigByServiceId(config.ServiceId);
             _logger.LogInformation($"Configuration { id } caching");
         }
 
@@ -119,15 +79,15 @@ namespace MarvelousConfigs.BLL.Services
             return configs;
         }
 
-        public async Task<List<ConfigModel>> GetConfigsByService(string token, string ip)
+        public async Task<List<ConfigModel>> GetConfigsByService(string token, string name)
         {
             if (!await _auth.GetRestResponse(token))
             {
-                throw new Exception($"Token for {ip} validation failed");
+                throw new ForbiddenException($"Token for { name } validation failed");
             }
-            _logger.LogInformation($"Getting configurations by service address { ip }");
-            List<Config> configs = await _cache.GetOrCreateAsync(ip, (ICacheEntry _)
-               => _rep.GetConfigsByService(ip));
+            _logger.LogInformation($"Getting configurations by service address { name }");
+            List<Config> configs = await _cache.GetOrCreateAsync(name, (ICacheEntry _)
+               => _rep.GetConfigsByService(name));
             _logger.LogInformation($"Configurations has been received");
             return _map.Map<List<ConfigModel>>(configs);
 

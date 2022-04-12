@@ -67,14 +67,10 @@
     <Build Include="dbo\Tables\Configs.sql" />
     <Build Include="dbo\Stored Procedures\GetAllConfigs.sql" />
     <Build Include="dbo\Stored Procedures\GetConfigsByServiceId.sql" />
-    <Build Include="dbo\Stored Procedures\AddConfig.sql" />
-    <Build Include="dbo\Stored Procedures\AddMicroservice.sql" />
     <Build Include="dbo\Stored Procedures\UpdateMicroserviceById.sql" />
     <Build Include="dbo\Stored Procedures\GetAllMicroservices.sql" />
     <Build Include="dbo\Stored Procedures\GetConfigById.sql" />
     <Build Include="dbo\Stored Procedures\GetMicroserviceById.sql" />
-    <Build Include="dbo\Stored Procedures\DeleteOrRestoreMicroserviceById.sql" />
-    <Build Include="dbo\Stored Procedures\DeleteOrRestoreConfigById.sql" />
     <Build Include="dbo\Stored Procedures\UpdateConfigById.sql" />
     <Build Include="dbo\Stored Procedures\GetMicroserviceWithConfigsById.sql" />
     <Build Include="dbo\Stored Procedures\GetConfigsByServiceAddress.sql" />

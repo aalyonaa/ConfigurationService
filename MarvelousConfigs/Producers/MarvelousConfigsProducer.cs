@@ -30,10 +30,9 @@ namespace MarvelousConfigs.API.RMQ.Producers
                 TextMessage = mess
             },
                source.Token);
-
         }
 
-        public async Task NotifyConfigurationAddedOrUpdated(int id)
+        public async Task NotifyConfigurationUpdated(int id)
         {
             var source = new CancellationTokenSource(TimeSpan.FromSeconds(10));
 

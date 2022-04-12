@@ -16,7 +16,6 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{D3E24AEC-6A6C-4A56-85F1-B08DE2D3511E}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
-		MarvelousConfigs\nlog.config = MarvelousConfigs\nlog.config
 	EndProjectSection
 EndProject
 Global

@@ -1,19 +1,22 @@
-﻿using Marvelous.Contracts.Enums;
-using MarvelousConfigs.BLL.AuthRequestClient;
-using MarvelousConfigs.BLL.Helper.Exceptions;
+﻿using AutoMapper;
+using Marvelous.Contracts.Enums;
+using MarvelousConfigs.BLL.Infrastructure;
+using MarvelousConfigs.BLL.Infrastructure.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 
 namespace MarvelousConfigs.API.Extensions
 {
     public class AdvanceController : ControllerBase
     {
-        public IAuthRequestClient _auth { get; set; }
-        public ILogger _logger { get; set; }
+        protected IAuthRequestClient _auth { get; set; }
+        protected ILogger _logger { get; set; }
+        protected IMapper _map { get; set; }
 
-        public AdvanceController(IAuthRequestClient auth, ILogger logger)
+        protected AdvanceController(IAuthRequestClient auth, ILogger logger, IMapper mapper)
         {
             _auth = auth;
             _logger = logger;
+            _map = mapper;
         }
 
         protected async Task CheckRole(params Role[] roles)
@@ -23,9 +26,10 @@ namespace MarvelousConfigs.API.Extensions
             if (token is null)
                 throw new UnauthorizedException($"Request attempt from unauthorized user");
             var lead = await _auth.SendRequestToValidateToken(token);
-            if (!roles.Select(r => r.ToString()).Contains(lead.Data!.Role))
+
+            if (!roles.Select(r => r.ToString()).Contains(lead.Role))
             {
-                throw new ForbiddenException($"Request attempt from user with role:{lead.Data!.Role}. User doesn't have access");
+                throw new ForbiddenException($"Request attempt from user with role:{lead.Role}. User doesn't have access");
             }
         }
     }

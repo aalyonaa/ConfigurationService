@@ -1,9 +1,12 @@
-﻿using MarvelousConfigs.API.RMQ.Producers;
-using MarvelousConfigs.BLL.AuthRequestClient;
-using MarvelousConfigs.BLL.Cache;
+﻿using FluentValidation.AspNetCore;
+using Marvelous.Contracts.Client;
+using MarvelousConfigs.API.Models.Validation;
+using MarvelousConfigs.BLL.Infrastructure;
 using MarvelousConfigs.BLL.Services;
 using MarvelousConfigs.DAL.Repositories;
 using MassTransit;
+using MicroElements.Swashbuckle.FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi.Models;
 using NLog.Extensions.Logging;
 
@@ -11,19 +14,20 @@ namespace MarvelousConfigs.API.Extensions
 {
     public static class IServiceProviderExtension
     {
-        public static void RegisterServices(this IServiceCollection services)
+        public static void RegisterDependencies(this IServiceCollection services)
         {
             services.AddScoped<IMicroservicesService, MicroservicesService>();
             services.AddScoped<IConfigsService, ConfigsService>();
-            services.AddScoped<IAuthRequestClient, AuthRequestClient>();
-            services.AddScoped<IMarvelousConfigsProducer, MarvelousConfigsProducer>();
-            services.AddTransient<IMemoryCacheExtentions, MemoryCacheExtentions>();
-        }
 
-        public static void RegisterRepositories(this IServiceCollection services)
-        {
             services.AddScoped<IMicroserviceRepository, MicroservicesRepository>();
             services.AddScoped<IConfigsRepository, ConfigsRepository>();
+
+            services.AddScoped<IAuthRequestClient, AuthRequestClient>();
+            services.AddScoped<IRestClient, MarvelousRestClient>();
+
+            services.AddScoped<IMarvelousConfigsProducer, MarvelousConfigsProducer>();
+
+            services.AddTransient<IMemoryCacheExtentions, MemoryCacheExtentions>();
         }
 
         public static void SetMemoryCache(this WebApplication app)
@@ -86,7 +90,18 @@ namespace MarvelousConfigs.API.Extensions
                 }
                 });
             });
+            services.AddFluentValidationRulesToSwagger();
         }
 
+        public static void AddFluentValidation(this IServiceCollection services)
+        {
+            services.AddFluentValidation(fv =>
+            {
+                fv.RegisterValidatorsFromAssemblyContaining<AuthRequestModelValidator>(lifetime: ServiceLifetime.Singleton);
+                fv.RegisterValidatorsFromAssemblyContaining<ConfigInputModelValidator>(lifetime: ServiceLifetime.Singleton);
+                fv.DisableDataAnnotationsValidation = true;
+            });
+            services.Configure<ApiBehaviorOptions>(options => { options.SuppressModelStateInvalidFilter = true; });
+        }
     }
 }

@@ -1,3 +1,4 @@
+using Marvelous.Contracts.Enums;
 using MarvelousConfigs.API.Configuration;
 using MarvelousConfigs.API.Extensions;
 using MarvelousConfigs.API.Infrastructure;
@@ -11,8 +12,10 @@ builder.Services.AddAutoMapper(typeof(CustomMapperAPI).Assembly, typeof(CustomMa
 
 string _connectionStringVariableName = "CONFIG_CONNECTION_STRING";
 string _logDirectoryVariableName = "LOG_DIRECTORY";
+string _authUrlVariableName = "IDENTITY_SERVICE_URL";
 string logDirectory = builder.Configuration.GetValue<string>(_logDirectoryVariableName);
 string conString = builder.Configuration.GetValue<string>(_connectionStringVariableName);
+string authUrl = builder.Configuration.GetValue<string>(_authUrlVariableName);
 
 builder.Services.Configure<DbConfiguration>(opt =>
 {
@@ -32,10 +35,10 @@ builder.Services.AddControllers()
                 });
 
 builder.Services.AddMemoryCache();
-builder.Services.RegisterRepositories();
-builder.Services.RegisterServices();
+builder.Services.RegisterDependencies();
 builder.Services.RegisterLogger(config);
 builder.Services.AddMassTransit();
+builder.Services.AddFluentValidation();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -43,12 +46,12 @@ builder.Services.AddSwagger();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+app.Configuration[Microservice.MarvelousAuth.ToString()] = authUrl;
 
 app.UseSwagger();
 app.UseSwaggerUI();
 
-app.UseMiddleware<GlobalExeptionHandler>();
+app.UseMiddleware<GlobalExceptionHandler>();
 
 app.UseHttpsRedirection();
 

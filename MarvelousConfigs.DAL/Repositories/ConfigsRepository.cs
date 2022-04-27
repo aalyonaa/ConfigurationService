@@ -49,7 +49,7 @@ namespace MarvelousConfigs.DAL.Repositories
 
         public async Task<List<Config>> GetConfigsByService(string name)
         {
-            _logger.LogInformation($"Request to get configs by microservice {name} to DB");
+            _logger.LogInformation($"Request to get configs for service {name} to DB");
 
             using IDbConnection connection = ProvideConnection();
 

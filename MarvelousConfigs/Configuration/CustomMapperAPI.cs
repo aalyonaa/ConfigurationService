@@ -17,7 +17,7 @@ namespace MarvelousConfigs.API.Configuration
             CreateMap<MicroserviceModel, MicroserviceOutputModel>();
 
             CreateMap<MicroserviceWithConfigsModel, MicroserviceWithConfigsOutputModel>()
-                .ForMember(m => m.Configs, opt => opt.MapFrom(o => o.Configs));
+                .ForMember(x => x.Configs, opt => opt.MapFrom(o => o.Configs));
         }
     }
 }

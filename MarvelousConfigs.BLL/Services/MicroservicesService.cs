@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using MarvelousConfigs.BLL.Exeptions;
+using MarvelousConfigs.BLL.Infrastructure.Exceptions;
 using MarvelousConfigs.BLL.Models;
 using MarvelousConfigs.DAL.Repositories;
 using Microsoft.Extensions.Caching.Memory;
@@ -32,9 +32,11 @@ namespace MarvelousConfigs.BLL.Services
             {
                 throw new EntityNotFoundException($"Service with id{ id } was not found");
             }
-            _logger.LogInformation($"Changing microservice { id }");
+
+            _logger.LogInformation($"Start update microservice { id }");
             await _rep.UpdateMicroserviceById(id, _map.Map<Microservice>(microservice));
             _logger.LogInformation($"Microservice { id } has been updated");
+            _logger.LogInformation($"Start changing updated microservice { id }");
             _cache.Set((Marvelous.Contracts.Enums.Microservice)id, _map.Map<MicroserviceModel>(await _rep.GetMicroserviceById(id)));
             _logger.LogInformation($"Microservice { id } caching");
         }
@@ -57,6 +59,7 @@ namespace MarvelousConfigs.BLL.Services
             {
                 throw new EntityNotFoundException($"Service with id{ id } was not found");
             }
+
             _logger.LogInformation($"Microservice { id } has been received");
             return _map.Map<MicroserviceModel>(service);
         }
